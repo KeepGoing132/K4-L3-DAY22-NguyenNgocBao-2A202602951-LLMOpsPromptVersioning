@@ -12,6 +12,12 @@ from dotenv import load_dotenv
 _root = Path(__file__).parent.parent
 load_dotenv(_root / ".env")
 
+# Console Windows phải hỗ trợ log tiếng Việt kể cả khi redirect.
+import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8")
+
 # ── LangSmith — PHẢI set trước khi import LangChain ──────────────────────
 os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
 os.environ["LANGCHAIN_API_KEY"]    = os.getenv("LANGCHAIN_API_KEY", "")
@@ -30,8 +36,8 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 
 # ── Google Gemini ─────────────────────────────────────────────────────────
 GOOGLE_API_KEY          = os.getenv("GOOGLE_API_KEY", "")
-GEMINI_MODEL            = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-GEMINI_EMBEDDING_MODEL  = os.getenv("GEMINI_EMBEDDING_MODEL", "models/embedding-001")
+GEMINI_MODEL            = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+GEMINI_EMBEDDING_MODEL  = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 
 # ── Anthropic ─────────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
@@ -50,6 +56,7 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 # ── LangSmith ─────────────────────────────────────────────────────────────
 LANGSMITH_API_KEY = os.getenv("LANGCHAIN_API_KEY", "")
 LANGSMITH_PROJECT = os.getenv("LANGCHAIN_PROJECT", "day22-lab")
+PROMPT_PREFIX = os.getenv("PROMPT_PREFIX", "nguyen-ngoc-bao-2a202602951")
 
 
 def validate() -> bool:
@@ -59,17 +66,28 @@ def validate() -> bool:
     """
     missing = []
 
-    if not LANGSMITH_API_KEY:
+    def absent(value):
+        return not value.strip() or value.startswith("your_")
+
+    if absent(LANGSMITH_API_KEY):
         missing.append("LANGCHAIN_API_KEY (LangSmith)")
 
-    if PROVIDER == "openai" and not OPENAI_API_KEY:
+    if os.environ["LANGCHAIN_TRACING_V2"].lower() != "true":
+        missing.append("LANGCHAIN_TRACING_V2=true")
+
+    if PROVIDER not in {"openai", "gemini", "anthropic", "ollama", "openrouter"}:
+        missing.append("PROVIDER hợp lệ: openai | gemini | anthropic | ollama | openrouter")
+
+    if PROVIDER == "openai" and absent(OPENAI_API_KEY):
         missing.append("OPENAI_API_KEY")
-    elif PROVIDER == "gemini" and not GOOGLE_API_KEY:
+    elif PROVIDER == "gemini" and absent(GOOGLE_API_KEY):
         missing.append("GOOGLE_API_KEY")
-    elif PROVIDER == "anthropic" and not ANTHROPIC_API_KEY:
+    elif PROVIDER == "anthropic" and absent(ANTHROPIC_API_KEY):
         missing.append("ANTHROPIC_API_KEY")
-    elif PROVIDER == "openrouter" and not OPENROUTER_API_KEY:
+    elif PROVIDER == "openrouter" and absent(OPENROUTER_API_KEY):
         missing.append("OPENROUTER_API_KEY")
+    if PROVIDER in {"anthropic", "openrouter"} and absent(OPENAI_API_KEY):
+        missing.append("OPENAI_API_KEY (embeddings)")
     # Ollama: không cần API key
 
     if missing:
@@ -84,4 +102,4 @@ def validate() -> bool:
 
 
 if __name__ == "__main__":
-    validate()
+    sys.exit(0 if validate() else 1)

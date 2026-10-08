@@ -117,10 +117,12 @@ def get_embeddings(provider: str = None):
 
     elif provider == "gemini":
         from langchain_google_genai import GoogleGenerativeAIEmbeddings
-        return GoogleGenerativeAIEmbeddings(
+        from utils.cached_embeddings import CachedEmbeddings
+        backend = GoogleGenerativeAIEmbeddings(
             model=config.GEMINI_EMBEDDING_MODEL,
             google_api_key=config.GOOGLE_API_KEY,
         )
+        return CachedEmbeddings(backend, f"gemini/{config.GEMINI_EMBEDDING_MODEL}")
 
     elif provider == "anthropic":
         # Anthropic không cung cấp Embeddings API → dùng OpenAI thay thế

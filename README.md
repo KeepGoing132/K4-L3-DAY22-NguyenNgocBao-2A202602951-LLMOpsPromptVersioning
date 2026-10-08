@@ -10,6 +10,9 @@
 
 # Chào mừng các bạn đến với Day 22: LangSmith + Prompt Versioning
 
+**Bản thực hiện: Nguyen Ngoc Bao — 2A202602951.** Code của bốn bước đã được triển khai.
+Xem [HUONG_DAN_CHAY.md](HUONG_DAN_CHAY.md) để chạy trên Windows, hiểu code và tạo evidence thật.
+
 ## Tổng quan
 
 Trong lab này, bạn sẽ xây dựng một hệ thống hỏi đáp hoàn chỉnh tích hợp nhiều công nghệ AI hiện đại:
