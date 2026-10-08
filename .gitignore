@@ -30,5 +30,7 @@ env/
 data/ragas_report.json
 data/rag_outputs_*.json
 data/ragas_samples_*.json
+data/ragas_checkpoint_*.json
+data/ragas_checkpoint_*.tmp
 data/embedding_cache.json
 data/embedding_cache.tmp

@@ -38,6 +38,7 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 GOOGLE_API_KEY          = os.getenv("GOOGLE_API_KEY", "")
 GEMINI_MODEL            = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 GEMINI_EMBEDDING_MODEL  = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
+RAGAS_GEMINI_MODEL      = os.getenv("RAGAS_GEMINI_MODEL") or GEMINI_MODEL
 
 # ── Anthropic ─────────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")

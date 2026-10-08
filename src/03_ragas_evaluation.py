@@ -1,11 +1,13 @@
 """Bước 3: đánh giá 50 QA × hai prompt bằng bốn metric RAGAS thật."""
 import config
 import json
+import hashlib
 from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.rate_limiters import InMemoryRateLimiter
 from ragas import evaluate, EvaluationDataset, SingleTurnSample
 from ragas.metrics import faithfulness, answer_relevancy, context_recall, context_precision
 from ragas.run_config import RunConfig
@@ -61,23 +63,61 @@ def build_ragas_dataset(rag_results: list) -> EvaluationDataset:
 def run_ragas_eval(rag_results: list, version: str) -> dict:
     """Chấm đủ bốn metric; không xuất điểm thành công nếu có NaN/thiếu sample."""
     print(f"\n📐 RAGAS {version}: có thể mất 5-30 phút.", flush=True)
+    if config.PROVIDER == "gemini":
+        print(f"  Evaluator Google: {config.RAGAS_GEMINI_MODEL}")
     # Gemini hiện chỉ hỗ trợ một candidate mỗi request; vẫn dùng metric RAGAS thật.
     relevance = replace(answer_relevancy, strictness=1) if config.PROVIDER == "gemini" else answer_relevancy
-    result = evaluate(
-        build_ragas_dataset(rag_results),
-        metrics=[faithfulness, relevance, context_recall, context_precision],
-        llm=get_llm(temperature=0), embeddings=get_embeddings(),
-        run_config=RunConfig(timeout=180, max_retries=3, max_workers=2),
-        raise_exceptions=True,
-    )
-    scores = {}
-    sample_scores = {}
+    evaluation_model = get_llm(temperature=0, model=config.RAGAS_GEMINI_MODEL) if config.PROVIDER == "gemini" else get_llm(temperature=0)
+    # Chia sẻ limiter giữa các metric: cho phép chờ API đồng thời mà không burst.
+    if config.PROVIDER == "gemini":
+        evaluation_model.rate_limiter = InMemoryRateLimiter(
+            requests_per_second=0.4, check_every_n_seconds=0.1, max_bucket_size=1,
+        )
+    fingerprint = hashlib.sha256(json.dumps({
+        "rows": rag_results, "provider": config.PROVIDER,
+        "judge": {"gemini": config.RAGAS_GEMINI_MODEL, "openai": config.OPENAI_MODEL,
+                  "anthropic": config.ANTHROPIC_MODEL, "ollama": config.OLLAMA_MODEL,
+                  "openrouter": config.OPENROUTER_MODEL}[config.PROVIDER],
+        "embedding": config.GEMINI_EMBEDDING_MODEL if config.PROVIDER == "gemini" else
+                     config.OLLAMA_EMBEDDING_MODEL if config.PROVIDER == "ollama" else config.OPENAI_EMBEDDING_MODEL,
+        "metrics": METRIC_NAMES, "strictness": relevance.strictness,
+    }, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    checkpoint_path = ROOT / "data" / f"ragas_checkpoint_{version}.json"
+    sample_scores = {key: [] for key in METRIC_NAMES}
+    if checkpoint_path.exists():
+        checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        if checkpoint.get("fingerprint") == fingerprint:
+            saved = checkpoint["sample_scores"]
+            lengths = {len(saved[key]) for key in METRIC_NAMES}
+            if len(lengths) != 1 or max(lengths) > len(rag_results) or not all(
+                    np.all(np.isfinite(np.asarray(saved[key], dtype=float))) for key in METRIC_NAMES):
+                raise ValueError("Checkpoint RAGAS không hợp lệ")
+            sample_scores = saved
+    completed = len(sample_scores[METRIC_NAMES[0]])
+    print(f"  Đã lưu {completed}/{len(rag_results)} QA; chấm tiếp theo nhóm 5.")
+    for start in range(completed, len(rag_results), 5):
+        batch = rag_results[start:start + 5]
+        result = evaluate(
+            build_ragas_dataset(batch),
+            metrics=[faithfulness, relevance, context_recall, context_precision],
+            llm=evaluation_model, embeddings=get_embeddings(),
+            run_config=RunConfig(timeout=180, max_retries=3, max_workers=8 if config.PROVIDER == "gemini" else 2),
+            raise_exceptions=True,
+        )
+        batch_scores = {}
+        for key in METRIC_NAMES:
+            values = np.asarray(result[key], dtype=float)
+            if len(values) != len(batch) or not np.all(np.isfinite(values)):
+                raise ValueError(f"{version}/{key}: thiếu điểm hoặc có NaN; cần chạy lại")
+            batch_scores[key] = values.tolist()
+        for key in METRIC_NAMES:
+            sample_scores[key].extend(batch_scores[key])
+        temp_path = checkpoint_path.with_suffix(".tmp")
+        temp_path.write_text(json.dumps({"fingerprint": fingerprint, "sample_scores": sample_scores}, allow_nan=False), encoding="utf-8")
+        temp_path.replace(checkpoint_path)
+        print(f"  💾 {version}: đã lưu {start + len(batch)}/{len(rag_results)} QA.", flush=True)
+    scores = {key: float(np.mean(sample_scores[key])) for key in METRIC_NAMES}
     for key in METRIC_NAMES:
-        values = np.asarray(result[key], dtype=float)
-        if len(values) != len(rag_results) or not np.all(np.isfinite(values)):
-            raise ValueError(f"{version}/{key}: thiếu điểm hoặc có NaN; cần chạy lại")
-        sample_scores[key] = values.tolist()
-        scores[key] = float(np.mean(values))
         print(f"  {key:30s}: {scores[key]:.4f}")
     (ROOT / "data" / f"ragas_samples_{version}.json").write_text(
         json.dumps(sample_scores, indent=2, allow_nan=False), encoding="utf-8")
@@ -123,6 +163,8 @@ def main(reuse_outputs=False):
             "target_met": best_faith >= 0.8, "samples_per_version": len(QA_PAIRS),
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "provider": config.PROVIDER, "retrieval": {"chunk_size": 500, "chunk_overlap": 50, "k": 3},
+            "generation_model": config.GEMINI_MODEL if config.PROVIDER == "gemini" else config.PROVIDER,
+            "evaluation_model": config.RAGAS_GEMINI_MODEL if config.PROVIDER == "gemini" else config.PROVIDER,
             "system_prompts": {"v1": SYSTEM_V1, "v2": SYSTEM_V2},
             "answer_relevancy_strictness": 1 if config.PROVIDER == "gemini" else answer_relevancy.strictness,
             "reused_outputs": reuse_outputs,

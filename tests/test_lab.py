@@ -146,8 +146,35 @@ class LabTests(unittest.TestCase):
                 self.assertEqual(relevance.strictness, 1 if step3.config.PROVIDER == "gemini" else 3)
                 self.assertEqual(step3.answer_relevancy.strictness, 3)
                 fake_result["faithfulness"] = [0.9, float("nan")]
+                (root / "data" / "ragas_checkpoint_v1.json").unlink()
                 with self.assertRaises(ValueError):
                     step3.run_ragas_eval(rows, "v1")
+
+    def test_ragas_checkpoint_resumes_only_matching_inputs(self):
+        """Không mất batch đã chấm thật; đổi answer thì không dùng điểm cũ."""
+        rows = [{"question": f"Q{i}", "answer": "A", "reference": "R", "contexts": ["C"]} for i in range(7)]
+        first = {key: [0.9] * 5 for key in step3.METRIC_NAMES}
+        second = {key: [0.7] * 2 for key in step3.METRIC_NAMES}
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "data").mkdir()
+            with patch.object(step3, "ROOT", root), patch.object(step3, "get_llm"), \
+                 patch.object(step3, "get_embeddings"), patch.object(step3, "evaluate") as evaluate:
+                evaluate.side_effect = [first, RuntimeError("quota day")]
+                with self.assertRaises(RuntimeError):
+                    step3.run_ragas_eval(rows, "v1")
+                evaluate.reset_mock()
+                evaluate.side_effect = None
+                evaluate.return_value = second
+                scores = step3.run_ragas_eval(rows, "v1")
+                evaluate.assert_called_once()
+                self.assertEqual(len(evaluate.call_args.args[0].samples), 2)
+                self.assertAlmostEqual(scores["faithfulness"], (5 * 0.9 + 2 * 0.7) / 7)
+                rows[0]["answer"] = "Changed answer"
+                evaluate.reset_mock()
+                evaluate.side_effect = [first, second]
+                step3.run_ragas_eval(rows, "v1")
+                self.assertEqual(evaluate.call_count, 2)
 
     def test_actual_guard_fix_outputs(self):
         """Kiểm tra tích hợp Guard, không chỉ validate() của class."""

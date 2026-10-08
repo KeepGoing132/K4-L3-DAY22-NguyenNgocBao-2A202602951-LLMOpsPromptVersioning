@@ -49,12 +49,18 @@ PROVIDER=gemini
 GOOGLE_API_KEY=your_google_api_key_here
 GEMINI_MODEL=gemini-3.5-flash-lite
 GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+RAGAS_GEMINI_MODEL=gemma-4-26b-a4b-it
 LANGCHAIN_API_KEY=your_langsmith_api_key_here
 LANGCHAIN_TRACING_V2=true
 ```
 
 Gemini dùng cùng `GOOGLE_API_KEY` cho chat và embeddings, không cần OpenAI key.
 Key LangSmith vẫn riêng để ghi traces và push/pull Prompt Hub.
+`GEMINI_MODEL` tạo câu trả lời RAG; `RAGAS_GEMINI_MODEL` chỉ làm evaluator.
+Lần chạy này dùng Gemma 4 26B A4B để chấm vì Gemini Flash-Lite đã hết quota 500
+requests/ngày trước khi chấm xong V1. Hai phiên bản được chấm lại bằng cùng
+evaluator; không trộn điểm từ lần chấm dở. Gemma 4 được cung cấp miễn phí qua
+[Google API](https://ai.google.dev/gemini-api/docs/pricing#gemma-4).
 Đã cập nhật các model Gemini cũ trong cấu hình theo
 [danh sách model Google](https://ai.google.dev/gemini-api/docs/models) và
 [lịch ngừng model](https://ai.google.dev/gemini-api/docs/deprecations).
@@ -79,6 +85,15 @@ Nếu phần tạo đủ 100 câu trả lời đã xong nhưng chấm lỗi, có
 ```powershell
 .\.venv\Scripts\python.exe src/03_ragas_evaluation.py --reuse-outputs
 ```
+
+RAGAS lưu checkpoint thật sau mỗi nhóm 5 QA vào `data/ragas_checkpoint_*.json`.
+Chạy lại tiếp tục từ nhóm đã lưu nếu answers, contexts, judge, embedding model
+và cấu hình metric khớp fingerprint; thay đầu vào thì chấm lại. Report cuối
+chỉ xuất khi đủ 50 QA của cả hai phiên bản và không có NaN. Điểm vẫn là trung
+bình của đủ 50 mẫu, không phải trung bình riêng từng nhóm.
+Evaluator Google dùng chung rate limiter khoảng 24 requests/phút, tối đa 8
+metric đang chờ API để tránh một request chậm giữ cả hàng đợi. Nếu quota của
+project thấp hơn, API có thể vẫn báo 429 và SDK thử lại.
 
 ## Cách giải thích code
 
