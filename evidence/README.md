@@ -1,86 +1,93 @@
-# Evidence ? Nguyen Ngoc Bao, 2A202602951
+# Evidence — Nguyen Ngoc Bao, 2A202602951
 
-Ng?y ch?y: 08/10/2026. C?c log v? report trong th? m?c n?y ???c t?o t? l?n
-ch?y th?t; d? li?u PII trong demo l? gi?.
+Ngày chạy: 08/10/2026. Các log và report trong thư mục này được tạo từ lần
+chạy thật; dữ liệu PII trong demo là giả.
 
-## K?t qu? v? tr?ng th?i n?p
+## Kết quả và trạng thái nộp
 
-API x?c nh?n 50 traces `rag-query` v? 50 traces `ab-rag-query` th?nh c?ng,
-kh?ng c? l?i. A/B: V1=19, V2=31; c? 50 traces A/B c? 3 contexts. Trace RAG m?u
-c? question, answer v? retrieval trong run con. Hai prompt ?? ???c pull v?
-??i chi?u kh?p code; commit hashes v? run IDs n?m trong
+API xác nhận 50 traces `rag-query` và 50 traces `ab-rag-query` thành công,
+không có lỗi. A/B: V1=19, V2=31; cả 50 traces A/B có 3 contexts. Trace RAG mẫu
+có question, answer và retrieval trong run con. Hai prompt đã được pull về
+đối chiếu khớp code; commit hashes và run IDs nằm trong
 [01_02_langsmith_api_verification.json](01_02_langsmith_api_verification.json).
 
 LangSmith project: [day22-nguyen-ngoc-bao-2a202602951](https://smith.langchain.com/o/b51ae144-8481-4bf3-87f5-0850afd02c81/projects/p/271813f2-cd09-4b5a-8f77-ed4cf1fe6c7f).
 
-Guardrails ??t 7/7 ca PII v? 7/7 ca JSON. `python -m unittest discover -s tests -v`
-??t 9/9 b?i ki?m th? offline; `pip check` kh?ng ph?t hi?n dependency l?i.
-K?t qu? mock c?a ki?m th? ch? ghi v?o th? m?c t?m, kh?ng d?ng l?m evidence.
+Guardrails đạt 7/7 ca PII và 7/7 ca JSON. `python -m unittest discover -s tests -v`
+đạt 9/9 bài kiểm thử offline; `pip check` không phát hiện dependency lỗi.
+Kết quả mock của kiểm thử chỉ ghi vào thư mục tạm, không dùng làm evidence.
 
 Đã lưu nguyên bản ba ảnh chụp thật do người học cung cấp:
-`01_langsmith_traces.png`, `02_prompt_hub.png` và `03_ragas_scores.png`.
-Ảnh terminal thể hiện đủ
-bốn metric V1/V2 khớp report. Ảnh dashboard thể hiện tên project và 344 traces
-tổng, nhưng các dòng đang hiển thị là `ragas evaluation`; cần bổ sung hoặc
-thay bằng ảnh lọc `rag-query` với ít nhất 50 traces cho checkpoint 1.
-Ảnh prompt hiển thị hai prompt với commit hashes `bf354ca6` (V2) và
-`8d838802` (V1), khớp xác nhận API. Tên bị rút gọn nên cần bổ sung hoặc
-thay bằng ảnh thấy đầy đủ tên và phần `v1`/`v2`.
-Đã đủ bảy tệp evidence; kiểm tra tự động không đánh giá nội dung ảnh.
-JSON xác nhận API là evidence bổ sung,
-không thay ảnh trên dashboard. Chưa nộp lên LMS.
 
-## RAGAS: 50 QA ? hai phi?n b?n
+- [01_langsmith_traces.png](01_langsmith_traces.png): tên project, bộ lọc
+  `name:"rag-query"`, danh sách traces và `Stats · 50 traces`.
+- [02_prompt_hub.png](02_prompt_hub.png): tên đầy đủ
+  `nguyen-ngoc-bao-2a202602951-rag-prompt-v1` và
+  `nguyen-ngoc-bao-2a202602951-rag-prompt-v2`; commit hashes
+  `8d838802` (V1) và `bf354ca6` (V2) khớp xác nhận API.
+- [03_ragas_scores.png](03_ragas_scores.png): bảng terminal với đủ bốn
+  metric V1/V2 khớp report.
 
-Answers ???c t?o b?i `gemini-3.5-flash-lite`; evaluator cu?i l?
-`gemma-4-26b-a4b-it`, `thinking_level=minimal`, qua Google API. C? hai phi?n b?n
-???c ch?m ?? 50 QA b?ng c?ng evaluator. C?c l?n ch?m Gemini tr??c ?? ch?m quota
-500 requests/ng?y; [log l?i quota](03_gemini31_quota_error_log.txt) ???c gi?
-ri?ng. Report cu?i ch? l?y ?i?m c?a l?n ch?m Gemma ho?n ch?nh.
+Ảnh bổ sung [01_langsmith_all_traces.png](01_langsmith_all_traces.png) giữ
+dashboard chưa lọc với 344 traces tổng. Xác nhận API ở trên phân biệt rõ
+50 traces RAG và 50 traces A/B trong tổng số này.
 
-| Metric | V1 | V2 | K?t qu? |
+Đã đủ bảy tệp evidence và đối chiếu trực quan các ảnh. Kiểm tra tự động
+xác nhận tệp, chữ ký PNG, log, report và bảo mật `.env`; không tự đánh giá
+nội dung ảnh. JSON xác nhận API là evidence bổ sung, không thay ảnh dashboard.
+Chưa nộp lên LMS.
+
+## RAGAS: 50 QA ở hai phiên bản
+
+Answers được tạo bởi `gemini-3.5-flash-lite`; evaluator cuối là
+`gemma-4-26b-a4b-it`, `thinking_level=minimal`, qua Google API. Cả hai phiên bản
+được chấm đủ 50 QA bằng cùng evaluator. Các lần chấm Gemini trước đó chạm quota
+500 requests/ngày; [log lỗi quota](03_gemini31_quota_error_log.txt) được giữ
+riêng. Report cuối chỉ lấy điểm của lần chấm Gemma hoàn chỉnh.
+
+| Metric | V1 | V2 | Kết quả |
 |---|---:|---:|---|
-| Faithfulness | 1.0000 | 0.9801 | V1 cao h?n |
-| Answer relevancy | 0.8480 | 0.8453 | V1 nh?nh h?n |
-| Context recall | 1.0000 | 1.0000 | B?ng nhau |
-| Context precision | 0.9600 | 0.9600 | B?ng nhau |
+| Faithfulness | 1.0000 | 0.9801 | V1 cao hơn |
+| Answer relevancy | 0.8480 | 0.8453 | V1 nhỉnh hơn |
+| Context recall | 1.0000 | 1.0000 | Bằng nhau |
+| Context precision | 0.9600 | 0.9600 | Bằng nhau |
 
-C? hai ??t m?c ti?u faithfulness ?0.8. ?? ??i chi?u report evidence v?i b?n trong
-`data/` v? t?nh l?i trung b?nh t? ?? 50 ?i?m h?u h?n cho m?i metric.
+Cả hai đạt mục tiêu faithfulness ≥0.8. Đã đối chiếu report evidence với bản trong
+`data/` và tính lại trung bình từ đủ 50 điểm hữu hạn cho mỗi metric.
 Report: [03_ragas_report.json](03_ragas_report.json).
-Log b?ng so s?nh: [03_ragas_evaluation_log.txt](03_ragas_evaluation_log.txt).
+Log bảng so sánh: [03_ragas_evaluation_log.txt](03_ragas_evaluation_log.txt).
 
-## Ph?n t?ch V1 v? V2
+## Phân tích V1 và V2
 
-V1 tr? l?i tr?c ti?p, ng?n g?n; V2 t? ch?c c?u tr? l?i theo ??nh ngh?a/k?t lu?n,
-c? ch? v? c?c ph?n ph?n bi?t. C? hai ch? d?ng context. Trong 50 c?p answers,
-?? d?i trung b?nh theo s? t? t?ch b?ng kho?ng tr?ng l? 44,4 ? V1 v? 83,8 ? V2.
-C? 50 c?u h?i nh?n c?ng contexts ? hai phi?n b?n. Context recall/precision d?ng
-c?ng question, reference v? contexts; cache l?u ph?n h?i judge th?t cho c?c
-??u v?o tr?ng nhau, n?n hai ch? s? context b?ng nhau.
+V1 trả lời trực tiếp, ngắn gọn; V2 tổ chức câu trả lời theo định nghĩa/kết luận,
+cơ chế và các phần phân biệt. Cả hai chỉ dùng context. Trong 50 cặp answers,
+độ dài trung bình theo số từ tách bằng khoảng trắng là 44,4 ở V1 và 83,8 ở V2.
+Cả 50 câu hỏi nhận cùng contexts ở hai phiên bản. Context recall/precision dùng
+cùng question, reference và contexts; cache lưu phản hồi judge thật cho các
+đầu vào trùng nhau, nên hai chỉ số context bằng nhau.
 
-V1 l? l?a ch?n m?c ??nh h?p l? cho b? c?u h?i ??nh ngh?a trong lab: c?u tr? l?i
-ng?n h?n, faithfulness cao h?n v? relevancy nh?nh h?n. Ch?nh l?ch relevancy
-kho?ng 0,0027 c?n nh?; ch?a c? ??nh gi? l?p l?i ho?c ki?m ??nh ?? k?t lu?n kh?c
-bi?t n?y c? ? ngh?a th?ng k?. V2 h?u ?ch khi c?n tr?nh b?y c? ch? v? nhi?u ph?n
-r? r?ng, nh?ng trong b? n?y n?i dung d?i h?n ch?a gi?p t?ng ?i?m trung b?nh.
+V1 là lựa chọn mặc định hợp lý cho bộ câu hỏi định nghĩa trong lab: câu trả lời
+ngắn hơn, faithfulness cao hơn và relevancy nhỉnh hơn. Chênh lệch relevancy
+khoảng 0,0027 còn nhỏ; chưa có đánh giá lặp lại hoặc kiểm định để kết luận khác
+biệt này có ý nghĩa thống kê. V2 hữu ích khi cần trình bày cơ chế và nhiều phần
+rõ ràng, nhưng trong bộ này nội dung dài hơn chưa giúp tăng điểm trung bình.
 
-V? d? QA19 (chain-of-thought): V1 n?u ??nh ngh?a v? c?c b??c trung gian; V2 th?m
-c? ch?, t?c ??ng v? bi?n th? zero-shot t? context. QA33 (LangGraph): V2 th?m
-observability ngo?i directed graph v? cycles m? V1 ?? n?u. ??y l? c?c v? d?
-cho s? kh?c bi?t phong c?ch, kh?ng ph?i b?ng ch?ng c?u tr? l?i d?i lu?n t?t h?n.
+Ví dụ QA19 (chain-of-thought): V1 nêu định nghĩa và các bước trung gian; V2 thêm
+cơ chế, tác động và biến thể zero-shot từ context. QA33 (LangGraph): V2 thêm
+observability ngoài directed graph và cycles mà V1 đã nêu. Đây là các ví dụ
+cho sự khác biệt phong cách, không phải bằng chứng câu trả lời dài luôn tốt hơn.
 
-QA20 c? faithfulness V2 b?ng 2/3: judge ch?p nh?n hai kh?ng ??nh v? th?ng tin
-trong dataset nh?ng ??nh d?u c?u k?t ?context does not establish any further
-specifications? l? suy lu?n v? th?ng tin v?ng m?t. Chi ti?t verdict th?t:
+QA20 có faithfulness V2 bằng 2/3: judge chấp nhận hai khẳng định về thông tin
+trong dataset nhưng đánh dấu câu kết “context does not establish any further
+specifications” là suy luận về thông tin vắng mặt. Chi tiết verdict thật:
 [03_qa20_faithfulness_detail.json](03_qa20_faithfulness_detail.json).
-V?i l?n c?i ti?n ti?p theo, V2 n?n ch? th?m c?u n?i thi?u th?ng tin khi th?c s?
-kh?ng tr? l?i ???c c?u h?i. ??y c?ng l? v? d? c?n ??c verdict v? context c?ng
-?i?m s? thay v? coi m?t metric l? k?t lu?n tuy?t ??i.
+Với lần cải tiến tiếp theo, V2 nên chỉ thêm câu nói thiếu thông tin khi thực sự
+không trả lời được câu hỏi. Đây cũng là ví dụ cần đọc verdict và context cùng
+điểm số thay vì coi một metric là kết luận tuyệt đối.
 
-C?c ?i?m ph? thu?c v?o judge v? 50 QA c?a lab. `answer_relevancy` d?ng
-`strictness=1` do gi?i h?n candidate c?a Google API; m?t c?u h?i t?ng h?p c?
-th? l?m ?i?m bi?n ??ng h?n m?c ??nh 3. Reference ch? ???c d?ng trong ??nh gi?,
-kh?ng ??a v?o prompt RAG ?? t?o answer. Ch?a ki?m tra m?t t?p c?u h?i ??c l?p.
+Các điểm phụ thuộc vào judge và 50 QA của lab. `answer_relevancy` dùng
+`strictness=1` do giới hạn candidate của Google API; một câu hỏi tổng hợp có
+thể làm điểm biến động hơn mặc định 3. Reference chỉ được dùng trong đánh giá,
+không đưa vào prompt RAG để tạo answer. Chưa kiểm tra một tập câu hỏi độc lập.
 
-H??ng d?n ch?y v? ch?p ?nh: [HUONG_DAN_CHAY.md](../HUONG_DAN_CHAY.md).
+Hướng dẫn chạy và chụp ảnh: [HUONG_DAN_CHAY.md](../HUONG_DAN_CHAY.md).

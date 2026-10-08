@@ -38,12 +38,10 @@ Cả hai đạt faithfulness ≥0.8. [Report thật](evidence/03_ragas_report.js
 và bộ 50 QA của lab; `answer_relevancy` dùng `strictness=1`.
 
 **Đã có đủ bảy tệp evidence:** đã lưu ba ảnh chụp thật do người học cung cấp:
-`01_langsmith_traces.png` (dashboard có 344 traces tổng) và
-`03_ragas_scores.png` (bảng điểm V1/V2) và `02_prompt_hub.png` (hai prompt
-với commit hashes khớp xác nhận API). Tên prompt trong ảnh bị rút gọn;
-nên bổ sung hoặc thay bằng ảnh thấy đầy đủ tên và phần `v1`/`v2`.
-Ảnh traces hiện hiển thị các dòng `ragas evaluation`; cần bổ sung hoặc thay
-bằng ảnh lọc `rag-query` thể hiện ít nhất 50 traces cho checkpoint 1.
+`01_langsmith_traces.png` (dashboard lọc `rag-query`, hiện 50 traces),
+`02_prompt_hub.png` (tên đầy đủ của hai prompt V1/V2 và commit hashes
+khớp xác nhận API) và `03_ragas_scores.png` (bảng điểm V1/V2).
+Các ảnh đã được đối chiếu trực quan; kiểm tra tự động bộ evidence đạt.
 Chưa nộp lên LMS.
 
 ## Tổng quan
