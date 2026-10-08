@@ -48,10 +48,12 @@ def get_llm(provider: str = None, temperature: float = 0.0, model: str = None):
 
     elif provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
+        selected_model = model or config.GEMINI_MODEL
         return ChatGoogleGenerativeAI(
-            model=model or config.GEMINI_MODEL,
+            model=selected_model,
             google_api_key=config.GOOGLE_API_KEY,
             temperature=temperature,
+            **({"thinking_level": "minimal"} if selected_model.startswith("gemma-") else {}),
         )
 
     elif provider == "anthropic":

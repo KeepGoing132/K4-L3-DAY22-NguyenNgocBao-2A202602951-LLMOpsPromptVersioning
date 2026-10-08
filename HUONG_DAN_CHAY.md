@@ -49,7 +49,7 @@ PROVIDER=gemini
 GOOGLE_API_KEY=your_google_api_key_here
 GEMINI_MODEL=gemini-3.5-flash-lite
 GEMINI_EMBEDDING_MODEL=gemini-embedding-001
-RAGAS_GEMINI_MODEL=gemini-3.1-flash-lite
+RAGAS_GEMINI_MODEL=gemma-4-26b-a4b-it
 LANGCHAIN_API_KEY=your_langsmith_api_key_here
 LANGCHAIN_TRACING_V2=true
 ```
@@ -57,10 +57,11 @@ LANGCHAIN_TRACING_V2=true
 Gemini dùng cùng `GOOGLE_API_KEY` cho chat và embeddings, không cần OpenAI key.
 Key LangSmith vẫn riêng để ghi traces và push/pull Prompt Hub.
 `GEMINI_MODEL` tạo câu trả lời RAG; `RAGAS_GEMINI_MODEL` chỉ làm evaluator.
-Lần chạy này dùng Gemini 3.1 Flash-Lite để chấm vì Gemini 3.5 Flash-Lite đã hết quota 500
-requests/ngày trước khi chấm xong V1. Hai phiên bản được chấm lại bằng cùng
-evaluator; không trộn điểm từ lần chấm dở. Model này có Free Tier theo
-[bảng giá Google API](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-flash-lite).
+Evaluator dùng Gemma 4 26B A4B vì cả Gemini 3.5 và 3.1 Flash-Lite đã chạm quota
+500 requests/ngày khi chấm. Hai phiên bản được chấm lại bằng cùng evaluator.
+Factory đặt `thinking_level=minimal` cho Gemma để giảm thời gian xử lý, theo
+[hướng dẫn trên Google AI Developers Forum](https://discuss.ai.google.dev/t/disable-thinking-for-gemma-4/138885/6).
+Gemma 4 miễn phí qua [Google API](https://ai.google.dev/gemini-api/docs/pricing#gemma-4).
 Đã cập nhật các model Gemini cũ trong cấu hình theo
 [danh sách model Google](https://ai.google.dev/gemini-api/docs/models) và
 [lịch ngừng model](https://ai.google.dev/gemini-api/docs/deprecations).
@@ -94,7 +95,7 @@ bình của đủ 50 mẫu, không phải trung bình riêng từng nhóm.
 Evaluator Google dùng chung rate limiter khoảng 24 requests/phút, tối đa 8
 metric đang chờ API để tránh một request chậm giữ cả hàng đợi. Nếu quota của
 project thấp hơn, API có thể vẫn báo 429 và SDK thử lại.
-Cache SQLite `data/ragas_judge_cache.db` lưu nguyên phản hồi LLM thật, phân biệt
+Cache SQLite `data/ragas_judge_cache*.db` lưu nguyên phản hồi LLM thật, phân biệt
 prompt và cấu hình model. Khi question, reference và contexts giống hệt ở V1/V2,
 RAGAS có thể dùng lại phản hồi chấm context; không gọi API hai lần để chấm cùng
 đầu vào. Cache này được Git ignore và không thay bằng điểm tự đặt.

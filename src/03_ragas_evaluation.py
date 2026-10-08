@@ -74,12 +74,13 @@ def run_ragas_eval(rag_results: list, version: str) -> dict:
     # Chia sẻ limiter giữa các metric: cho phép chờ API đồng thời mà không burst.
     if config.PROVIDER == "gemini":
         # NullPool đóng kết nối sau mỗi thao tác, tránh khóa file trên Windows.
-        cache_path = ROOT / "data" / "ragas_judge_cache.db"
+        cache_name = "ragas_judge_cache_gemma_minimal.db" if config.RAGAS_GEMINI_MODEL.startswith("gemma-") else "ragas_judge_cache.db"
+        cache_path = ROOT / "data" / cache_name
         evaluation_model.cache = SQLAlchemyCache(create_engine(f"sqlite:///{cache_path}", poolclass=NullPool))
         evaluation_model.rate_limiter = InMemoryRateLimiter(
             requests_per_second=0.4, check_every_n_seconds=0.1, max_bucket_size=1,
         )
-    fingerprint = hashlib.sha256(json.dumps({
+    fingerprint_config = {
         "rows": rag_results, "provider": config.PROVIDER,
         "judge": {"gemini": config.RAGAS_GEMINI_MODEL, "openai": config.OPENAI_MODEL,
                   "anthropic": config.ANTHROPIC_MODEL, "ollama": config.OLLAMA_MODEL,
@@ -87,7 +88,10 @@ def run_ragas_eval(rag_results: list, version: str) -> dict:
         "embedding": config.GEMINI_EMBEDDING_MODEL if config.PROVIDER == "gemini" else
                      config.OLLAMA_EMBEDDING_MODEL if config.PROVIDER == "ollama" else config.OPENAI_EMBEDDING_MODEL,
         "metrics": METRIC_NAMES, "strictness": relevance.strictness,
-    }, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    }
+    if config.PROVIDER == "gemini" and config.RAGAS_GEMINI_MODEL.startswith("gemma-"):
+        fingerprint_config["thinking_level"] = "minimal"
+    fingerprint = hashlib.sha256(json.dumps(fingerprint_config, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     checkpoint_path = ROOT / "data" / f"ragas_checkpoint_{version}.json"
     sample_scores = {key: [] for key in METRIC_NAMES}
     if checkpoint_path.exists():
@@ -171,6 +175,7 @@ def main(reuse_outputs=False):
             "provider": config.PROVIDER, "retrieval": {"chunk_size": 500, "chunk_overlap": 50, "k": 3},
             "generation_model": config.GEMINI_MODEL if config.PROVIDER == "gemini" else config.PROVIDER,
             "evaluation_model": config.RAGAS_GEMINI_MODEL if config.PROVIDER == "gemini" else config.PROVIDER,
+            "evaluation_thinking_level": "minimal" if config.PROVIDER == "gemini" and config.RAGAS_GEMINI_MODEL.startswith("gemma-") else None,
             "system_prompts": {"v1": SYSTEM_V1, "v2": SYSTEM_V2},
             "answer_relevancy_strictness": 1 if config.PROVIDER == "gemini" else answer_relevancy.strictness,
             "reused_outputs": reuse_outputs,
