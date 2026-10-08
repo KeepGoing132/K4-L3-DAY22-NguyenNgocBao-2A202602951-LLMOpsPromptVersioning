@@ -12,7 +12,7 @@ Trace RAG mẫu có question, answer và retrieval trong run con; cả 50 traces
 đều có 3 contexts. Hai prompt trên Hub đã được pull, đối chiếu khớp với code.
 Chi tiết và commit hashes: `01_02_langsmith_api_verification.json`. Xác nhận API
 này là evidence bổ sung, không thay ảnh dashboard. RAGAS đang tiếp tục với
-evaluator `gemma-4-26b-a4b-it` qua Google API, còn answers vẫn từ
+evaluator `gemini-3.1-flash-lite` qua Google API, còn answers vẫn từ
 `gemini-3.5-flash-lite`. Lần chấm trước dừng vì Gemini báo hết quota 500
 requests/ngày; không dùng các điểm chưa hoàn chỉnh của lần đó làm report.
 

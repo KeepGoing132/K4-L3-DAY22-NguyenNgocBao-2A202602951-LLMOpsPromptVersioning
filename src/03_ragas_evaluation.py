@@ -8,6 +8,9 @@ from pathlib import Path
 import numpy as np
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.rate_limiters import InMemoryRateLimiter
+from langchain_community.cache import SQLAlchemyCache
+from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 from ragas import evaluate, EvaluationDataset, SingleTurnSample
 from ragas.metrics import faithfulness, answer_relevancy, context_recall, context_precision
 from ragas.run_config import RunConfig
@@ -70,6 +73,9 @@ def run_ragas_eval(rag_results: list, version: str) -> dict:
     evaluation_model = get_llm(temperature=0, model=config.RAGAS_GEMINI_MODEL) if config.PROVIDER == "gemini" else get_llm(temperature=0)
     # Chia sẻ limiter giữa các metric: cho phép chờ API đồng thời mà không burst.
     if config.PROVIDER == "gemini":
+        # NullPool đóng kết nối sau mỗi thao tác, tránh khóa file trên Windows.
+        cache_path = ROOT / "data" / "ragas_judge_cache.db"
+        evaluation_model.cache = SQLAlchemyCache(create_engine(f"sqlite:///{cache_path}", poolclass=NullPool))
         evaluation_model.rate_limiter = InMemoryRateLimiter(
             requests_per_second=0.4, check_every_n_seconds=0.1, max_bucket_size=1,
         )
