@@ -17,11 +17,13 @@ Guardrails ??t 7/7 ca PII v? 7/7 ca JSON. `python -m unittest discover -s tests 
 ??t 9/9 b?i ki?m th? offline; `pip check` kh?ng ph?t hi?n dependency l?i.
 K?t qu? mock c?a ki?m th? ch? ghi v?o th? m?c t?m, kh?ng d?ng l?m evidence.
 
-`src/check_submission.py` x?c nh?n log/report v? b?o m?t `.env` ??t. Hi?n thi?u
-??ng ba ?nh ch?p th?t: `01_langsmith_traces.png`, `02_prompt_hub.png` v?
-`03_ragas_scores.png`. JSON x?c nh?n API l? evidence b? sung, kh?ng thay ?nh
-tr?n dashboard. C?ng c? tr?nh duy?t kh?ng c? k?t n?i v? Windows Computer Use
-b?o native pipe unavailable; v? v?y ch?a ch?p ???c ?nh. Ch?a n?p l?n LMS.
+Đã lưu nguyên bản hai ảnh chụp thật do người học cung cấp:
+`01_langsmith_traces.png` và `03_ragas_scores.png`. Ảnh terminal thể hiện đủ
+bốn metric V1/V2 khớp report. Ảnh dashboard thể hiện tên project và 344 traces
+tổng, nhưng các dòng đang hiển thị là `ragas evaluation`; cần bổ sung hoặc
+thay bằng ảnh lọc `rag-query` với ít nhất 50 traces cho checkpoint 1.
+Còn thiếu `02_prompt_hub.png`. JSON xác nhận API là evidence bổ sung,
+không thay ảnh trên dashboard. Chưa nộp lên LMS.
 
 ## RAGAS: 50 QA ? hai phi?n b?n
 

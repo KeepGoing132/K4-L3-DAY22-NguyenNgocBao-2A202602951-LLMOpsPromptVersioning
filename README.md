@@ -37,11 +37,12 @@ Cả hai đạt faithfulness ≥0.8. [Report thật](evidence/03_ragas_report.js
 [phân tích V1/V2](evidence/README.md) đã được lưu. Các điểm phụ thuộc evaluator
 và bộ 50 QA của lab; `answer_relevancy` dùng `strictness=1`.
 
-**Chưa đủ bộ evidence để nộp:** cần thêm ảnh chụp thật
-`01_langsmith_traces.png`, `02_prompt_hub.png`, `03_ragas_scores.png` trong
-`evidence/`. Công cụ trình duyệt/Windows của phiên làm bài không có kết nối
-để chụp. `src/check_submission.py` xác nhận các mục còn lại đạt và báo thiếu
-đúng ba ảnh. Chưa nộp lên LMS.
+**Chưa đủ bộ evidence để nộp:** đã lưu hai ảnh chụp thật do người học cung cấp:
+`01_langsmith_traces.png` (dashboard có 344 traces tổng) và
+`03_ragas_scores.png` (bảng điểm V1/V2). Còn thiếu `02_prompt_hub.png`.
+Ảnh traces hiện hiển thị các dòng `ragas evaluation`; cần bổ sung hoặc thay
+bằng ảnh lọc `rag-query` thể hiện ít nhất 50 traces cho checkpoint 1.
+Chưa nộp lên LMS.
 
 ## Tổng quan
 
