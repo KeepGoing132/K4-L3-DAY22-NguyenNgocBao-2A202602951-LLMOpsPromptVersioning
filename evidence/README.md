@@ -1,48 +1,79 @@
-# Evidence — Nguyen Ngoc Bao, 2A202602951
+# Evidence ? Nguyen Ngoc Bao, 2A202602951
 
-Hai file `04_pii_demo_log.txt` và `04_json_demo_log.txt` được tạo bằng chạy Guardrails tại máy, có kiểm tra output thực tế. Các thông tin PII trong demo đều là dữ liệu giả.
+Ng?y ch?y: 08/10/2026. C?c log v? report trong th? m?c n?y ???c t?o t? l?n
+ch?y th?t; d? li?u PII trong demo l? gi?.
 
-Đã kiểm tra ngày 08/10/2026: Guardrails đạt 7/7 ca PII và 7/7 ca JSON;
-`python -m unittest discover -s tests -v` đạt 9/9 bài kiểm thử offline;
-`python -m pip check` không phát hiện dependency lỗi.
+## K?t qu? v? tr?ng th?i n?p
 
-Đã cấu hình Gemini và LangSmith, có log A/B thật. API xác nhận 50 traces `rag-query` và
-50 traces `ab-rag-query` thành công, không có lỗi; A/B phân phối V1=19, V2=31.
-Trace RAG mẫu có question, answer và retrieval trong run con; cả 50 traces A/B
-đều có 3 contexts. Hai prompt trên Hub đã được pull, đối chiếu khớp với code.
-Chi tiết và commit hashes: `01_02_langsmith_api_verification.json`. Xác nhận API
-này là evidence bổ sung, không thay ảnh dashboard. RAGAS đang tiếp tục với
-evaluator `gemma-4-26b-a4b-it` qua Google API, còn answers vẫn từ
-`gemini-3.5-flash-lite`. Các lần chấm Gemini 3.5 và 3.1 dừng vì quota 500
-requests/ngày. Lần chấm Gemma dùng `thinking_level=minimal`; report cuối chỉ
-lấy điểm đầy đủ từ cùng evaluator.
+API x?c nh?n 50 traces `rag-query` v? 50 traces `ab-rag-query` th?nh c?ng,
+kh?ng c? l?i. A/B: V1=19, V2=31; c? 50 traces A/B c? 3 contexts. Trace RAG m?u
+c? question, answer v? retrieval trong run con. Hai prompt ?? ???c pull v?
+??i chi?u kh?p code; commit hashes v? run IDs n?m trong
+[01_02_langsmith_api_verification.json](01_02_langsmith_api_verification.json).
 
 LangSmith project: [day22-nguyen-ngoc-bao-2a202602951](https://smith.langchain.com/o/b51ae144-8481-4bf3-87f5-0850afd02c81/projects/p/271813f2-cd09-4b5a-8f77-ed4cf1fe6c7f).
 
-Chạy lại phần xác nhận (không gọi Gemini):
+Guardrails ??t 7/7 ca PII v? 7/7 ca JSON. `python -m unittest discover -s tests -v`
+??t 9/9 b?i ki?m th? offline; `pip check` kh?ng ph?t hi?n dependency l?i.
+K?t qu? mock c?a ki?m th? ch? ghi v?o th? m?c t?m, kh?ng d?ng l?m evidence.
 
-```powershell
-.\.venv\Scripts\python.exe src/verify_langsmith.py
-```
+`src/check_submission.py` x?c nh?n log/report v? b?o m?t `.env` ??t. Hi?n thi?u
+??ng ba ?nh ch?p th?t: `01_langsmith_traces.png`, `02_prompt_hub.png` v?
+`03_ragas_scores.png`. JSON x?c nh?n API l? evidence b? sung, kh?ng thay ?nh
+tr?n dashboard. C?ng c? tr?nh duy?t kh?ng c? k?t n?i v? Windows Computer Use
+b?o native pipe unavailable; v? v?y ch?a ch?p ???c ?nh. Ch?a n?p l?n LMS.
 
-Các evidence LangSmith/Prompt Hub/RAGAS chỉ được bổ sung sau khi cấu hình API và chạy thật; không tạo ảnh dashboard hoặc điểm giả để lấp file thiếu.
+## RAGAS: 50 QA ? hai phi?n b?n
 
-## So sánh prompt
+Answers ???c t?o b?i `gemini-3.5-flash-lite`; evaluator cu?i l?
+`gemma-4-26b-a4b-it`, `thinking_level=minimal`, qua Google API. C? hai phi?n b?n
+???c ch?m ?? 50 QA b?ng c?ng evaluator. C?c l?n ch?m Gemini tr??c ?? ch?m quota
+500 requests/ng?y; [log l?i quota](03_gemini31_quota_error_log.txt) ???c gi?
+ri?ng. Report cu?i ch? l?y ?i?m c?a l?n ch?m Gemma ho?n ch?nh.
 
-V1: tutor trả lời trực tiếp, ngắn gọn. V2: analyst tổ chức câu trả lời theo định nghĩa/kết luận và cơ chế/phân biệt. Cả hai bắt buộc bám context và thừa nhận khi thiếu thông tin.
+| Metric | V1 | V2 | K?t qu? |
+|---|---:|---:|---|
+| Faithfulness | 1.0000 | 0.9801 | V1 cao h?n |
+| Answer relevancy | 0.8480 | 0.8453 | V1 nh?nh h?n |
+| Context recall | 1.0000 | 1.0000 | B?ng nhau |
+| Context precision | 0.9600 | 0.9600 | B?ng nhau |
 
-Chưa có điểm RAGAS thực tế, nên chưa kết luận phiên bản nào tốt hơn hoặc đã đạt faithfulness ≥0.8. Sau khi chạy, đối chiếu bốn chỉ số trong `03_ragas_report.json` cùng câu trả lời và context trong `data/rag_outputs_v1.json`/`rag_outputs_v2.json` để giải thích chênh lệch.
+C? hai ??t m?c ti?u faithfulness ?0.8. ?? ??i chi?u report evidence v?i b?n trong
+`data/` v? t?nh l?i trung b?nh t? ?? 50 ?i?m h?u h?n cho m?i metric.
+Report: [03_ragas_report.json](03_ragas_report.json).
+Log b?ng so s?nh: [03_ragas_evaluation_log.txt](03_ragas_evaluation_log.txt).
 
-Trong 50 cặp câu trả lời đã chạy, độ dài trung bình theo số từ tách bằng khoảng
-trắng là 44,4 ở V1 và 83,8 ở V2. Cả 50 câu hỏi nhận cùng contexts ở hai phiên bản.
-Vì vậy, khác biệt điểm trả lời cần được phân tích theo nội dung và prompt;
-khác biệt context metrics giữa hai lần chấm còn có thể do evaluator.
+## Ph?n t?ch V1 v? V2
 
-Ví dụ QA 19 (chain-of-thought): V1 giải thích định nghĩa và các bước trung gian;
-V2 thêm mục cơ chế, tác động và biến thể zero-shot từ context. QA 33 (LangGraph):
-V2 thêm phần observability ngoài định nghĩa, directed graph và cycles mà V1
-đã nêu. Các chi tiết thêm này giải thích vì sao V2 dài hơn; chúng chỉ có ích
-nếu vừa đúng context vừa phục vụ câu hỏi, nên cần đọc cùng faithfulness và
-answer relevancy, không dùng độ dài để kết luận chất lượng.
+V1 tr? l?i tr?c ti?p, ng?n g?n; V2 t? ch?c c?u tr? l?i theo ??nh ngh?a/k?t lu?n,
+c? ch? v? c?c ph?n ph?n bi?t. C? hai ch? d?ng context. Trong 50 c?p answers,
+?? d?i trung b?nh theo s? t? t?ch b?ng kho?ng tr?ng l? 44,4 ? V1 v? 83,8 ? V2.
+C? 50 c?u h?i nh?n c?ng contexts ? hai phi?n b?n. Context recall/precision d?ng
+c?ng question, reference v? contexts; cache l?u ph?n h?i judge th?t cho c?c
+??u v?o tr?ng nhau, n?n hai ch? s? context b?ng nhau.
 
-Hướng dẫn chạy và chụp đủ bảy tệp: [HUONG_DAN_CHAY.md](../HUONG_DAN_CHAY.md).
+V1 l? l?a ch?n m?c ??nh h?p l? cho b? c?u h?i ??nh ngh?a trong lab: c?u tr? l?i
+ng?n h?n, faithfulness cao h?n v? relevancy nh?nh h?n. Ch?nh l?ch relevancy
+kho?ng 0,0027 c?n nh?; ch?a c? ??nh gi? l?p l?i ho?c ki?m ??nh ?? k?t lu?n kh?c
+bi?t n?y c? ? ngh?a th?ng k?. V2 h?u ?ch khi c?n tr?nh b?y c? ch? v? nhi?u ph?n
+r? r?ng, nh?ng trong b? n?y n?i dung d?i h?n ch?a gi?p t?ng ?i?m trung b?nh.
+
+V? d? QA19 (chain-of-thought): V1 n?u ??nh ngh?a v? c?c b??c trung gian; V2 th?m
+c? ch?, t?c ??ng v? bi?n th? zero-shot t? context. QA33 (LangGraph): V2 th?m
+observability ngo?i directed graph v? cycles m? V1 ?? n?u. ??y l? c?c v? d?
+cho s? kh?c bi?t phong c?ch, kh?ng ph?i b?ng ch?ng c?u tr? l?i d?i lu?n t?t h?n.
+
+QA20 c? faithfulness V2 b?ng 2/3: judge ch?p nh?n hai kh?ng ??nh v? th?ng tin
+trong dataset nh?ng ??nh d?u c?u k?t ?context does not establish any further
+specifications? l? suy lu?n v? th?ng tin v?ng m?t. Chi ti?t verdict th?t:
+[03_qa20_faithfulness_detail.json](03_qa20_faithfulness_detail.json).
+V?i l?n c?i ti?n ti?p theo, V2 n?n ch? th?m c?u n?i thi?u th?ng tin khi th?c s?
+kh?ng tr? l?i ???c c?u h?i. ??y c?ng l? v? d? c?n ??c verdict v? context c?ng
+?i?m s? thay v? coi m?t metric l? k?t lu?n tuy?t ??i.
+
+C?c ?i?m ph? thu?c v?o judge v? 50 QA c?a lab. `answer_relevancy` d?ng
+`strictness=1` do gi?i h?n candidate c?a Google API; m?t c?u h?i t?ng h?p c?
+th? l?m ?i?m bi?n ??ng h?n m?c ??nh 3. Reference ch? ???c d?ng trong ??nh gi?,
+kh?ng ??a v?o prompt RAG ?? t?o answer. Ch?a ki?m tra m?t t?p c?u h?i ??c l?p.
+
+H??ng d?n ch?y v? ch?p ?nh: [HUONG_DAN_CHAY.md](../HUONG_DAN_CHAY.md).

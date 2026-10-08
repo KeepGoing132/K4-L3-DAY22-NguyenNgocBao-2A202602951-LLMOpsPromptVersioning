@@ -1,0 +1,99 @@
+♻️ Dùng 50 câu trả lời đã lưu trong rag_outputs_v1.json
+♻️ Dùng 50 câu trả lời đã lưu trong rag_outputs_v2.json
+
+📐 RAGAS v1: có thể mất 5-30 phút.
+  Evaluator Google: gemma-4-26b-a4b-it
+  Đã lưu 0/50 QA; chấm tiếp theo nhóm 5.
+  💾 v1: đã lưu 5/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 10/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 15/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 20/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 25/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 30/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 35/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 40/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 45/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v1: đã lưu 50/50 QA.
+  faithfulness                  : 1.0000
+  answer_relevancy              : 0.8480
+  context_recall                : 1.0000
+  context_precision             : 0.9600
+
+📐 RAGAS v2: có thể mất 5-30 phút.
+  Evaluator Google: gemma-4-26b-a4b-it
+  Đã lưu 0/50 QA; chấm tiếp theo nhóm 5.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 5/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 10/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 15/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 20/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 25/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 30/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 35/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 40/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 45/50 QA.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+📦 Embeddings: 1/1 đoạn mới.
+  💾 v2: đã lưu 50/50 QA.
+  faithfulness                  : 0.9801
+  answer_relevancy              : 0.8453
+  context_recall                : 1.0000
+  context_precision             : 0.9600
+
+=================================================================
+Metric                               V1       V2  Winner
+faithfulness                     1.0000   0.9801  V1
+answer_relevancy                 0.8480   0.8453  V1
+context_recall                   1.0000   1.0000  Tie
+context_precision                0.9600   0.9600  Tie
+💾 Đã lưu data/ragas_report.json và evidence/03_ragas_report.json
+✅ Faithfulness = 1.0000 ≥ 0.8

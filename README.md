@@ -13,6 +13,36 @@
 **Bản thực hiện: Nguyen Ngoc Bao — 2A202602951.** Code của bốn bước đã được triển khai.
 Xem [HUONG_DAN_CHAY.md](HUONG_DAN_CHAY.md) để chạy trên Windows, hiểu code và tạo evidence thật.
 
+## Kết quả chạy thực tế — 08/10/2026
+
+Repo nộp bài: [KeepGoing132/Day22](https://github.com/KeepGoing132/K4-L3-DAY22-NguyenNgocBao-2A202602951-LLMOpsPromptVersioning).
+Project: [day22-nguyen-ngoc-bao-2a202602951](https://smith.langchain.com/o/b51ae144-8481-4bf3-87f5-0850afd02c81/projects/p/271813f2-cd09-4b5a-8f77-ed4cf1fe6c7f).
+
+API LangSmith đã xác nhận 50 traces `rag-query`, 50 traces `ab-rag-query` thành
+công và hai prompt cá nhân trên Hub. Routing: V1=19, V2=31. Guardrails đạt 7/7
+ca PII và 7/7 ca JSON; kiểm thử offline đạt 9/9.
+
+RAGAS chấm đủ 50 QA mỗi phiên bản. Gemini 3.5 Flash-Lite tạo câu trả lời;
+Gemma 4 26B A4B (`thinking_level=minimal`) qua cùng Google API làm evaluator.
+
+| Metric | V1 | V2 |
+|---|---:|---:|
+| Faithfulness | 1.0000 | 0.9801 |
+| Answer relevancy | 0.8480 | 0.8453 |
+| Context recall | 1.0000 | 1.0000 |
+| Context precision | 0.9600 | 0.9600 |
+
+Cả hai đạt faithfulness ≥0.8. [Report thật](evidence/03_ragas_report.json),
+[log chấm](evidence/03_ragas_evaluation_log.txt) và
+[phân tích V1/V2](evidence/README.md) đã được lưu. Các điểm phụ thuộc evaluator
+và bộ 50 QA của lab; `answer_relevancy` dùng `strictness=1`.
+
+**Chưa đủ bộ evidence để nộp:** cần thêm ảnh chụp thật
+`01_langsmith_traces.png`, `02_prompt_hub.png`, `03_ragas_scores.png` trong
+`evidence/`. Công cụ trình duyệt/Windows của phiên làm bài không có kết nối
+để chụp. `src/check_submission.py` xác nhận các mục còn lại đạt và báo thiếu
+đúng ba ảnh. Chưa nộp lên LMS.
+
 ## Tổng quan
 
 Trong lab này, bạn sẽ xây dựng một hệ thống hỏi đáp hoàn chỉnh tích hợp nhiều công nghệ AI hiện đại:

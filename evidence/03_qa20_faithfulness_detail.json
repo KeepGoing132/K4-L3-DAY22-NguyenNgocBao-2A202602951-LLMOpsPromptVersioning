@@ -1,0 +1,33 @@
+{
+  "source": "Genuine persisted RAGAS NLI response",
+  "version": "v2",
+  "qa_index": 20,
+  "evaluation_model": "gemma-4-26b-a4b-it",
+  "thinking_level": "minimal",
+  "question": "What is the context length of GPT-4?",
+  "reference": "GPT-4 supports up to 128K tokens of context.",
+  "answer": "Based on the provided text, GPT-4 supports up to 128K tokens of context. \n\n* **Capacity:** This context length enables the model to process and generate very long documents, codebases, and extended conversations without losing track of earlier information. \n* **Additional Details:** The context does not establish any further specifications or operational limits regarding GPT-4 beyond this token capacity.",
+  "contexts": [
+    "world knowledge. GPT-4 supports up to 128K tokens of context, enabling it to process and generate very long documents, codebases, and extended conversations without losing track of earlier information.",
+    "GPT (Generative Pre-trained Transformer) is a family of autoregressive language models developed by OpenAI. GPT uses autoregressive training to predict the next token given previous tokens, trained on massive text datasets. During pre-training, the model learns to predict the next word in billions of text sequences using a unidirectional (left-to-right) transformer. This training objective forces the model to learn grammar, facts, reasoning, and world knowledge. GPT-4 supports up to 128K tokens",
+    "LangChain provides multiple memory types to enable conversational context across turns. LangChain supports ConversationBufferMemory, ConversationSummaryMemory, ConversationWindowMemory, and vector store memory. ConversationBufferMemory stores the full conversation history verbatim. ConversationSummaryMemory maintains a running summary to save tokens. ConversationWindowMemory keeps only the last k exchanges. Vector store memory retrieves the most relevant past exchanges using semantic"
+  ],
+  "faithfulness": 0.6666666666666666,
+  "nli_verdicts": [
+    {
+      "statement": "Based on the provided text, GPT-4 supports up to 128K tokens of context.",
+      "reason": "The context explicitly states, 'GPT-4 supports up to 128K tokens of context'.",
+      "verdict": 1
+    },
+    {
+      "statement": "The 128K token context length enables GPT-4 to process and generate very long documents, codebases, and extended conversations without losing track of earlier information.",
+      "reason": "The context directly links the 128K token support to the ability to process and generate long documents, codebases, and extended conversations without losing track of earlier information.",
+      "verdict": 1
+    },
+    {
+      "statement": "The context does not establish any further specifications or operational limits regarding GPT-4 beyond the 128K token capacity.",
+      "reason": "While the text mentions the 128K token capacity, it does not explicitly state that there are *no other* specifications or limits; it simply doesn't mention any others. Therefore, claiming the context 'does not establish' them is an inference about the absence of information rather than a direct fact provided by the text.",
+      "verdict": 0
+    }
+  ]
+}
